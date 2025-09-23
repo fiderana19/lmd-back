@@ -5,15 +5,9 @@
 */ 
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
+const Connect = require('./db/connection');
 //Database connection
-const db = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "noteuniversitaire",
-})
-
+const db = Connect();
 //Getting the etudiant unity
 router.post("/unity", (req, res) => {
     const SELECT_NOTE_QUERY = "SELECT ue.id_ue, ec.nom_ec, ec.poids_ec, ec.credit_ec, note.valeur FROM note JOIN etudiant ON note.id_etudiant = etudiant.id_etudiant JOIN ec ON note.id_ec = ec.id_ec JOIN ue ON ec.id_ue = ue.id_ue WHERE note.id_etudiant = ? AND note.id_annee = ? AND note.id_niveau = ?;";

@@ -5,15 +5,9 @@
 */ 
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
+const Connect = require('./db/connection');
 //Database connection
-const db = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "noteuniversitaire",
-})
-
+const db = Connect();
 //Afficher tous les notes 
 router.get("/", (req, res) => {
     const SELECT_NOTE_QUERY = "SELECT id_note,valeur,id_annee,matricule AS id_etudiant,titre_niveau AS id_niveau,nom_ec AS id_ec FROM note,etudiant,niveau,ec WHERE note.id_etudiant = etudiant.id_etudiant AND note.id_niveau = niveau.id_niveau AND note.id_ec = ec.id_ec";

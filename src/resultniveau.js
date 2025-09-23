@@ -5,15 +5,9 @@
 */ 
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
+const Connect = require('./db/connection');
 //Database connection
-const db = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "noteuniversitaire",
-})
-
+const db = Connect();
 //Getting the etudiant unity
 router.post("/final/", (req, res) => {
     const obs = req.body.obs;

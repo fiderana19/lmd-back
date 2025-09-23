@@ -5,14 +5,9 @@
 */ 
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
+const Connect = require('./db/connection');
 //Database connection
-const db = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "noteuniversitaire",
-})
+const db = Connect();
 
 // Afficher tous les ue
 router.get("/", (req, res) => {

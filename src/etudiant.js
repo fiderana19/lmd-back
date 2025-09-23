@@ -4,15 +4,10 @@
 ----------------------
 */ 
 const express = require('express');
+const Connect = require('./db/connection');
 const router = express.Router();
-const mysql = require('mysql');
 //Database connection
-const db = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "noteuniversitaire",
-})
+const db = Connect();
 //Getting all 
 router.get('/' , (req , res) => {
     const SELECT_ALL = "SELECT * FROM etudiant;";
