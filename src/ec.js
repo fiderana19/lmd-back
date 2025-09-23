@@ -73,7 +73,7 @@ router.delete("/delete/:id", (req, res) => {
 router.get("/get/:id", (req, res) => {
     const id = req.params.id;
 
-    const GET_EC_QUERY = "SELECT * FROM ec WHERE id_ec = ?";
+    const GET_EC_QUERY = "SELECT id_ec,nom_ec,semestre,et,ed,ep,credit_ec,poids_ec,nom_ue AS id_ue FROM ec,ue WHERE ec.id_ue = ue.id_ue AND id_ec = ?";
     
     db.query(
         GET_EC_QUERY,

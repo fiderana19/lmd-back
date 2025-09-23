@@ -88,4 +88,24 @@ router.patch("/edit/:id", (req, res) => {
     );
 });
 
+// Get ue by id
+router.get("/get/:id", (req, res) => {
+    const id = req.params.id;
+
+    const SELECT_UE_BYID_QUERY = "SELECT * FROM ue WHERE id_ue = ?";
+    
+    db.query(
+        SELECT_UE_BYID_QUERY,
+        [id],
+        (err, data) => {
+              if(err) {
+            console.log(err);
+            return res.json(err);
+        }
+        return res.json(data);
+        }
+    );
+
+});
+
 module.exports = router;
