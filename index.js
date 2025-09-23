@@ -8,6 +8,7 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 //Requiring all files
+const authRouter = require("./src/auth/auth");
 const resultRouter = require("./src/result");
 const resultNiveauRouter = require("./src/resultniveau");
 const anneeRouter = require("./src/annee");
@@ -25,6 +26,7 @@ app.use("/note", noteRouter);
 app.use("/etudiant", etudiantRouter);
 app.use("/ec", ecRouter);
 app.use("/niveau", niveauRouter);
+app.use("/auth", authRouter);
 //Listening to port
 app.listen(port, () => {
   console.log(`The app listening on port ${port}`);
