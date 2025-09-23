@@ -6,10 +6,11 @@
 const express = require("express");
 const router = express.Router();
 const Connect = require("./db/connection");
+const authMiddleware = require('./middleware/guard')
 //Database connection
 const db = Connect();
 //Afficher tous les notes
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const SELECT_NOTE_QUERY =
     "SELECT id_note,valeur,id_annee,matricule AS id_etudiant,titre_niveau AS id_niveau,nom_ec AS id_ec FROM note,etudiant,niveau,ec WHERE note.id_etudiant = etudiant.id_etudiant AND note.id_niveau = niveau.id_niveau AND note.id_ec = ec.id_ec";
 
@@ -23,7 +24,7 @@ router.get("/", (req, res) => {
 });
 
 //Afficher tous les notes
-router.get("/note/:id", (req, res) => {
+router.get("/note/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
 
   const SELECT_NOTE_QUERY = "SELECT * FROM note WHERE id_note = ?";
@@ -37,7 +38,7 @@ router.get("/note/:id", (req, res) => {
   });
 });
 // creer note
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, (req, res) => {
   const valeur = req.body.valeur;
   const id_etudiant = req.body.id_etudiant;
   const id_niveau = req.body.id_niveau;
@@ -61,7 +62,7 @@ router.post("/create", (req, res) => {
 });
 
 //Modifier note
-router.patch("/edit/:id", (req, res) => {
+router.patch("/edit/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const { valeur } = req.body;
 
@@ -76,7 +77,7 @@ router.patch("/edit/:id", (req, res) => {
   });
 });
 //Supprimer note
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
 
   const DELETE_NOTE_QUERY = "DELETE FROM note WHERE id_note = ?";
@@ -91,7 +92,7 @@ router.delete("/delete/:id", (req, res) => {
 });
 
 // afficher les notes par etudiants
-router.get("/notes/etudiant/:id_etudiant", (req, res) => {
+router.get("/notes/etudiant/:id_etudiant", authMiddleware, (req, res) => {
   const id_etudiant = req.params.id_etudiant;
 
   const SELECT_NOTES_BY_STUDENT_QUERY =
@@ -106,7 +107,7 @@ router.get("/notes/etudiant/:id_etudiant", (req, res) => {
   });
 });
 // afficher les notes d'un etudiant au cours d'un niveau
-router.get("/notes/etudiant/:id_etudiant/niveau/:id_niveau", (req, res) => {
+router.get("/notes/etudiant/:id_etudiant/niveau/:id_niveau", authMiddleware, (req, res) => {
   const id_etudiant = req.params.id_etudiant;
   const id_niveau = req.params.id_niveau;
 
@@ -126,7 +127,7 @@ router.get("/notes/etudiant/:id_etudiant/niveau/:id_niveau", (req, res) => {
   );
 });
 // afficher les notes d'un etudiant pendant une année spécifique
-router.get("/etudiant/:id_etudiant/annee/:annee", (req, res) => {
+router.get("/etudiant/:id_etudiant/annee/:annee", authMiddleware, (req, res) => {
   const id_etudiant = req.params.id_etudiant;
   const annee = req.params.annee;
 
@@ -147,7 +148,7 @@ router.get("/etudiant/:id_etudiant/annee/:annee", (req, res) => {
 });
 
 //Reuperer les notes d'un niveau pendant une annee
-router.post("/niveau/", (req, res) => {
+router.post("/niveau/", authMiddleware, (req, res) => {
   const id_ec = req.body.id_ec;
   const id_niveau = req.body.id_niveau;
   const id_annee = req.body.id_annee;

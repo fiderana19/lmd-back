@@ -6,10 +6,11 @@
 const express = require("express");
 const router = express.Router();
 const Connect = require("./db/connection");
+const authMiddleware = require('./middleware/guard')
 //Database connection
 const db = Connect();
 //Getting the etudiant unity
-router.post("/unity", (req, res) => {
+router.post("/unity", authMiddleware, (req, res) => {
   const SELECT_NOTE_QUERY =
     "SELECT ue.id_ue, ec.nom_ec, ec.poids_ec, ec.credit_ec, note.valeur FROM note JOIN etudiant ON note.id_etudiant = etudiant.id_etudiant JOIN ec ON note.id_ec = ec.id_ec JOIN ue ON ec.id_ue = ue.id_ue WHERE note.id_etudiant = ? AND note.id_annee = ? AND note.id_niveau = ?;";
   const values = [req.body.id_etudiant, req.body.id_annee, req.body.id_niveau];
@@ -25,7 +26,7 @@ router.post("/unity", (req, res) => {
 });
 
 //Getting the etudiant mark data
-router.post("/result", (req, res) => {
+router.post("/result", authMiddleware, (req, res) => {
   const SELECT_NOTE_QUERY =
     "SELECT ue.id_ue, ec.nom_ec, ec.credit_ec, ec.poids_ec, note.valeur FROM note JOIN etudiant ON note.id_etudiant = etudiant.id_etudiant JOIN ec ON note.id_ec = ec.id_ec JOIN ue ON ec.id_ue = ue.id_ue WHERE note.id_etudiant = ? AND note.id_annee = ? AND note.id_niveau = ?;";
   const values = [req.body.id_etudiant, req.body.id_annee, req.body.id_niveau];
@@ -43,7 +44,7 @@ router.post("/result", (req, res) => {
 });
 
 //Getting the etudiant final result
-router.post("/final", (req, res) => {
+router.post("/final", authMiddleware, (req, res) => {
   const SELECT_NOTE_QUERY =
     "SELECT ue.id_ue, ec.nom_ec, ec.credit_ec, ec.poids_ec, note.valeur FROM note JOIN etudiant ON note.id_etudiant = etudiant.id_etudiant JOIN ec ON note.id_ec = ec.id_ec JOIN ue ON ec.id_ue = ue.id_ue WHERE note.id_etudiant = ? AND note.id_annee = ? AND note.id_niveau = ?;";
   const values = [req.body.id_etudiant, req.body.id_annee, req.body.id_niveau];
@@ -62,7 +63,7 @@ router.post("/final", (req, res) => {
 });
 
 //Getting the etudiant data
-router.post("/", (req, res) => {
+router.post("/", authMiddleware, (req, res) => {
   const SELECT_NOTE_QUERY =
     "SELECT DISTINCT niveau.domaine,niveau.mention,niveau.parcours,niveau.titre_niveau,niveau.descri_niveau,etudiant.matricule,etudiant.nom,etudiant.prenom,etudiant.date_naiss,etudiant.lieu_naiss,annee.id_annee FROM note JOIN etudiant ON note.id_etudiant = etudiant.id_etudiant JOIN niveau ON note.id_niveau = niveau.id_niveau JOIN annee ON note.id_annee = annee.id_annee WHERE note.id_etudiant = ? AND note.id_annee = ? AND note.id_niveau = ?;";
   const values = [req.body.id_etudiant, req.body.id_annee, req.body.id_niveau];

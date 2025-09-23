@@ -6,10 +6,11 @@
 const express = require("express");
 const Connect = require("./db/connection");
 const router = express.Router();
+const authMiddleware = require('./middleware/guard')
 //Database connection
 const db = Connect();
 //Getting all
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const SELECT_ALL = "SELECT * FROM etudiant;";
   db.query(SELECT_ALL, (err, data) => {
     if (err) {
@@ -20,7 +21,7 @@ router.get("/", (req, res) => {
   });
 });
 //Creating a new etudiant
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, (req, res) => {
   const id_etudiant = req.body.id_etudiant;
   const matricule = req.body.matricule;
   const nom = req.body.nom;
@@ -64,7 +65,7 @@ router.patch("/edit/:id", (req, res) => {
 });
 
 //Deleting an etudiant
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const DELETE_etudiant = "DELETE FROM etudiant WHERE id_etudiant = ?;";
   db.query(DELETE_etudiant, id, (err, data) => {
@@ -77,7 +78,7 @@ router.delete("/delete/:id", (req, res) => {
 });
 
 //Getting etudiant by id
-router.get("/get/:id", (req, res) => {
+router.get("/get/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const SELECT_BY_ID = "SELECT * FROM etudiant WHERE id_etudiant = ?;";
   db.query(SELECT_BY_ID, id, (err, data) => {

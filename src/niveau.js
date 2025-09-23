@@ -6,10 +6,11 @@
 const express = require("express");
 const Connect = require("./db/connection");
 const router = express.Router();
+const authMiddleware = require('./middleware/guard')
 //Database connection
 const db = Connect();
 //Getting all niveau
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const SELECT_ALL = "SELECT * FROM niveau;";
   db.query(SELECT_ALL, (err, data) => {
     if (err) {
@@ -20,7 +21,7 @@ router.get("/", (req, res) => {
   });
 });
 //Getting niveau by id
-router.get("/get/:id", (req, res) => {
+router.get("/get/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const SELECT_BY_ID = "SELECT * FROM niveau WHERE id_niveau = ?;";
   db.query(SELECT_BY_ID, id, (err, data) => {
@@ -32,7 +33,7 @@ router.get("/get/:id", (req, res) => {
   });
 });
 //Creating niveau
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, (req, res) => {
   const id_niveau = req.body.id_niveau;
   const titre_niveau = req.body.titre_niveau;
   const descri_niveau = req.body.descri_niveau;
@@ -53,7 +54,7 @@ router.post("/create", (req, res) => {
   );
 });
 //Editing niveau
-router.patch("/edit/:id", (req, res) => {
+router.patch("/edit/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const UPDATE_niveau =
     "UPDATE niveau SET titre_niveau = ?, descri_niveau = ?, domaine = ? , mention = ? , parcours = ? where id_niveau = ?";
@@ -74,7 +75,7 @@ router.patch("/edit/:id", (req, res) => {
   });
 });
 //Deleting niveau
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const DELETE_niveau = "DELETE FROM niveau WHERE id_niveau = ?;";
   db.query(DELETE_niveau, id, (err, data) => {

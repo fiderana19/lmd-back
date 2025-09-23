@@ -6,11 +6,12 @@
 const express = require("express");
 const Connect = require("./db/connection");
 const router = express.Router();
+const authMiddleware = require('./middleware/guard')
 //Database connection
 const db = Connect();
 
 // Afficher tous les ec
-router.get("/", (req, res) => {
+router.get("/", authMiddleware, (req, res) => {
   const SELECT_ALL_EC_QUERY =
     "SELECT id_ec,nom_ec,semestre,et,ed,ep,credit_ec,poids_ec,nom_ue AS id_ue FROM ec,ue WHERE ec.id_ue = ue.id_ue";
 
@@ -24,7 +25,7 @@ router.get("/", (req, res) => {
 });
 
 // Ajout ec
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, (req, res) => {
   const { nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue } = req.body;
 
   const INSERT_EC_QUERY =
@@ -44,7 +45,7 @@ router.post("/create", (req, res) => {
 });
 
 // Delete ec
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
 
   const DELETE_EC_QUERY = "DELETE FROM ec WHERE id_ec = ?";
@@ -59,7 +60,7 @@ router.delete("/delete/:id", (req, res) => {
 });
 
 // get ec by id
-router.get("/get/:id", (req, res) => {
+router.get("/get/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
 
   const GET_EC_QUERY =
@@ -75,7 +76,7 @@ router.get("/get/:id", (req, res) => {
 });
 
 // update ec
-router.patch("/edit/:id", (req, res) => {
+router.patch("/edit/:id", authMiddleware, (req, res) => {
   const id = req.params.id;
   const { nom_ec, semestre, et, ed, ep, credit_ec, poids_ec } = req.body;
 

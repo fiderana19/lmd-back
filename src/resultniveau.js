@@ -6,10 +6,11 @@
 const express = require("express");
 const router = express.Router();
 const Connect = require("./db/connection");
+const authMiddleware = require('./middleware/guard')
 //Database connection
 const db = Connect();
 //Getting the etudiant unity
-router.post("/final/", (req, res) => {
+router.post("/final/", authMiddleware, (req, res) => {
   const obs = req.body.obs;
 
   const values = [req.body.id_annee, req.body.id_niveau];
@@ -32,7 +33,7 @@ router.post("/final/", (req, res) => {
 });
 
 //Getting the etudiant mark data
-router.post("/info", (req, res) => {
+router.post("/info", authMiddleware, (req, res) => {
   const values = [req.body.id_annee, req.body.id_niveau];
 
   const SELECT_NOTE_QUERY =
