@@ -67,12 +67,12 @@ function findResult(groupedNotes) {
 }
 
 function findFinal(gr) {
-  if (gr.total_credits >= 60 && gr.moyenne_generale >= 10) return "ADMIS";
-  if (gr.total_credits >= 30 && gr.total_credits < 60 && gr.moyenne_generale >= 10) return "AUTORISE A PASSE AU NIVEAU SUPERIEUR";
-  if (gr.total_credits >= 30 && gr.moyenne_generale < 10 && gr.moyenne_generale > 7) return "AUTORISER A REDOUBLER";
-  if (gr.total_credits < 30 && gr.moyenne_generale > 7) return "AUTORISER A REDOUBLER";
-  if (gr.total_credits < 30 && gr.moyenne_generale <= 7) return "EXCLUS";
-  return "";
+  if (gr.moyenne_generale >= 10) {
+    if (gr.total_credits >= gr.total_credits_possible) return "ADMIS";
+    return "AUTORISE A PASSE AU NIVEAU SUPERIEUR";
+  }
+  if (gr.moyenne_generale > 7) return "AUTORISER A REDOUBLER";
+  return "EXCLUS";
 }
 
 function findResultAll(groupedNotes) {
@@ -203,7 +203,7 @@ async function getEtudiantInfo(id_etudiant, id_annee, id_niveau) {
     include: [
       { model: Etudiant, attributes: ["matricule", "nom", "prenom", "date_naiss", "lieu_naiss"] },
       { model: Niveau, attributes: ["domaine", "mention", "parcours", "titre_niveau", "descri_niveau"] },
-      { model: Annee, attributes: ["id_annee"] },
+      { model: Annee, attributes: ["id_annee", "libelle"] },
     ],
     attributes: [],
   });
@@ -221,6 +221,7 @@ async function getEtudiantInfo(id_etudiant, id_annee, id_niveau) {
     date_naiss: r.etudiant.date_naiss,
     lieu_naiss: r.etudiant.lieu_naiss,
     id_annee: r.annee.id_annee,
+    libelle: r.annee.libelle,
   }];
 }
 
@@ -262,7 +263,7 @@ async function getNiveauInfo(id_annee, id_niveau) {
     where: { id_annee, id_niveau },
     include: [
       { model: Niveau, attributes: ["domaine", "mention", "parcours", "titre_niveau", "descri_niveau"] },
-      { model: Annee, attributes: ["id_annee"] },
+      { model: Annee, attributes: ["id_annee", "libelle"] },
     ],
     attributes: [],
   });
@@ -275,6 +276,7 @@ async function getNiveauInfo(id_annee, id_niveau) {
     titre_niveau: r.niveau.titre_niveau,
     descri_niveau: r.niveau.descri_niveau,
     id_annee: r.annee.id_annee,
+    libelle: r.annee.libelle,
   }];
 }
 

@@ -13,8 +13,8 @@ async function seedDB() {
   await User.create({ username: "testuser", password: hashedPassword });
 
   await Annee.bulkCreate([
-    { id_annee: 1 },
-    { id_annee: 2 },
+    { id_annee: 1, libelle: "2023-2024" },
+    { id_annee: 2, libelle: "2024-2025" },
   ]);
 
   await Niveau.bulkCreate([

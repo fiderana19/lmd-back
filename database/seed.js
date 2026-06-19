@@ -67,7 +67,11 @@ async function seed() {
 
   // ---- Annees ----
   await Annee.bulkCreate([
-    { id_annee: 1 }, { id_annee: 2 }, { id_annee: 3 }, { id_annee: 4 }, { id_annee: 5 },
+    { id_annee: 1, libelle: "2023-2024" },
+    { id_annee: 2, libelle: "2024-2025" },
+    { id_annee: 3, libelle: "2025-2026" },
+    { id_annee: 4, libelle: "2026-2027" },
+    { id_annee: 5, libelle: "2027-2028" },
   ]);
 
   // ---- Niveaux ----

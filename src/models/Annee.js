@@ -6,6 +6,10 @@ const Annee = sequelize.define("annee", {
     type: DataTypes.INTEGER,
     primaryKey: true,
   },
+  libelle: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 }, {
   tableName: "annee",
   timestamps: false,
