@@ -1,23 +1,23 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
-require("dotenv").config();
+const config = require("./src/config/index");
+const errorHandler = require("./src/middleware/errorHandler");
 
-const port = process.env.PORT;
-//Using CORS
+const app = express();
+
 app.use(cors());
 app.use(express.json());
-//Requiring all files
-const authRouter = require("./src/auth/auth");
-const resultRouter = require("./src/result");
-const resultNiveauRouter = require("./src/resultniveau");
-const anneeRouter = require("./src/annee");
-const ueRouter = require("./src/ue");
-const noteRouter = require("./src/note");
-const etudiantRouter = require("./src/etudiant");
-const ecRouter = require("./src/ec");
-const niveauRouter = require("./src/niveau");
-//Routing the endpoint
+
+const authRouter = require("./src/routes/auth");
+const resultRouter = require("./src/routes/result");
+const resultNiveauRouter = require("./src/routes/resultNiveau");
+const anneeRouter = require("./src/routes/annee");
+const ueRouter = require("./src/routes/ue");
+const noteRouter = require("./src/routes/note");
+const etudiantRouter = require("./src/routes/etudiant");
+const ecRouter = require("./src/routes/ec");
+const niveauRouter = require("./src/routes/niveau");
+
 app.use("/result/etudiant", resultRouter);
 app.use("/result/niveau", resultNiveauRouter);
 app.use("/annee", anneeRouter);
@@ -27,7 +27,9 @@ app.use("/etudiant", etudiantRouter);
 app.use("/ec", ecRouter);
 app.use("/niveau", niveauRouter);
 app.use("/auth", authRouter);
-//Listening to port
-app.listen(port, () => {
-  console.log(`The app listening on port ${port}`);
+
+app.use(errorHandler);
+
+app.listen(config.port, () => {
+  console.log(`The app listening on port ${config.port}`);
 });
