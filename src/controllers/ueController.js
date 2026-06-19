@@ -23,8 +23,8 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const { nom_ue, credit_ue } = req.body;
-    const data = await ueService.create(nom_ue, credit_ue);
+    const { id_ue, nom_ue, credit_ue } = req.body;
+    const data = await ueService.create(id_ue, nom_ue, credit_ue);
     res.json(data);
   } catch (err) {
     logger.error("ue create error:", err);

@@ -1,18 +1,16 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const db = require("../config/database");
+const { User } = require("../models");
 const config = require("../config/index");
 const AppError = require("../utils/AppError");
 
 async function login(username, password) {
-  const LOGIN_QUERY = "SELECT * from user WHERE username = ?";
-  const data = await db.query(LOGIN_QUERY, [username]);
+  const user = await User.findOne({ where: { username } });
 
-  if (!data || data.length === 0) {
+  if (!user) {
     throw new AppError("Utilisateur non trouvé", 401);
   }
 
-  const user = data[0];
   const isMatched = await bcrypt.compare(password, user.password);
 
   if (!isMatched) {
@@ -26,8 +24,7 @@ async function login(username, password) {
 
 async function signup(username, password) {
   const hashedPassword = await bcrypt.hash(password, 10);
-  const SIGNUP_QUERY = "INSERT INTO user (username, password) VALUES (?, ?)";
-  return db.query(SIGNUP_QUERY, [username, hashedPassword]);
+  return User.create({ username, password: hashedPassword });
 }
 
 module.exports = { login, signup };

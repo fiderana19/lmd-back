@@ -1,33 +1,47 @@
-const db = require("../config/database");
+const { Ec, Ue } = require("../models");
+const sequelize = require("../config/sequelize");
 
 async function getAll() {
-  const query =
-    "SELECT id_ec,nom_ec,semestre,et,ed,ep,credit_ec,poids_ec,nom_ue AS id_ue FROM ec,ue WHERE ec.id_ue = ue.id_ue";
-  return db.query(query);
+  return Ec.findAll({
+    include: [{ model: Ue, attributes: [] }],
+    attributes: [
+      "id_ec", "nom_ec", "semestre", "et", "ed", "ep", "credit_ec", "poids_ec",
+      [sequelize.col("ue.id_ue"), "id_ue"],
+      [sequelize.col("ue.nom_ue"), "nom_ue"],
+    ],
+    raw: true,
+  });
 }
 
 async function getById(id) {
-  const query =
-    "SELECT id_ec,nom_ec,semestre,et,ed,ep,credit_ec,poids_ec,nom_ue AS id_ue FROM ec,ue WHERE ec.id_ue = ue.id_ue AND id_ec = ?";
-  return db.query(query, [id]);
+  const result = await Ec.findAll({
+    where: { id_ec: id },
+    include: [{ model: Ue, attributes: [] }],
+    attributes: [
+      "id_ec", "nom_ec", "semestre", "et", "ed", "ep", "credit_ec", "poids_ec",
+      [sequelize.col("ue.id_ue"), "id_ue"],
+      [sequelize.col("ue.nom_ue"), "nom_ue"],
+    ],
+    raw: true,
+  });
+  return result;
 }
 
 async function create(data) {
-  const { nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue } = data;
-  const query =
-    "INSERT INTO ec (nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  return db.query(query, [nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue]);
+  const { id_ec, nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue } = data;
+  return Ec.create({ id_ec, nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue });
 }
 
 async function update(id, data) {
-  const { nom_ec, semestre, et, ed, ep, credit_ec, poids_ec } = data;
-  const query =
-    "UPDATE ec SET nom_ec = ?, semestre = ?, et = ?, ed = ?, ep = ?, credit_ec = ?, poids_ec = ? WHERE id_ec = ?";
-  return db.query(query, [nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id]);
+  const { nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue } = data;
+  return Ec.update(
+    { nom_ec, semestre, et, ed, ep, credit_ec, poids_ec, id_ue },
+    { where: { id_ec: id } },
+  );
 }
 
 async function remove(id) {
-  return db.query("DELETE FROM ec WHERE id_ec = ?", [id]);
+  return Ec.destroy({ where: { id_ec: id } });
 }
 
 module.exports = { getAll, getById, create, update, remove };

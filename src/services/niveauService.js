@@ -1,31 +1,28 @@
-const db = require("../config/database");
+const { Niveau } = require("../models");
 
 async function getAll() {
-  return db.query("SELECT * FROM niveau");
+  return Niveau.findAll();
 }
 
 async function getById(id) {
-  return db.query("SELECT * FROM niveau WHERE id_niveau = ?", [id]);
+  return Niveau.findByPk(id);
 }
 
 async function create(data) {
   const { id_niveau, titre_niveau, descri_niveau, domaine, mention, parcours } = data;
-  return db.query(
-    "INSERT INTO niveau (id_niveau, titre_niveau, descri_niveau, domaine, mention, parcours) VALUES (?,?,?,?,?,?)",
-    [id_niveau, titre_niveau, descri_niveau, domaine, mention, parcours],
-  );
+  return Niveau.create({ id_niveau, titre_niveau, descri_niveau, domaine, mention, parcours });
 }
 
 async function update(id, data) {
   const { titre_niveau, descri_niveau, domaine, mention, parcours } = data;
-  return db.query(
-    "UPDATE niveau SET titre_niveau = ?, descri_niveau = ?, domaine = ?, mention = ?, parcours = ? WHERE id_niveau = ?",
-    [titre_niveau, descri_niveau, domaine, mention, parcours, id],
+  return Niveau.update(
+    { titre_niveau, descri_niveau, domaine, mention, parcours },
+    { where: { id_niveau: id } },
   );
 }
 
 async function remove(id) {
-  return db.query("DELETE FROM niveau WHERE id_niveau = ?", [id]);
+  return Niveau.destroy({ where: { id_niveau: id } });
 }
 
 module.exports = { getAll, getById, create, update, remove };

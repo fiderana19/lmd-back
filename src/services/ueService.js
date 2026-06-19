@@ -1,23 +1,23 @@
-const db = require("../config/database");
+const { Ue } = require("../models");
 
 async function getAll() {
-  return db.query("SELECT * FROM ue");
+  return Ue.findAll();
 }
 
 async function getById(id) {
-  return db.query("SELECT * FROM ue WHERE id_ue = ?", [id]);
+  return Ue.findByPk(id);
 }
 
-async function create(nom_ue, credit_ue) {
-  return db.query("INSERT INTO ue (nom_ue, credit_ue) VALUES (?, ?)", [nom_ue, credit_ue]);
+async function create(id_ue, nom_ue, credit_ue) {
+  return Ue.create({ id_ue, nom_ue, credit_ue });
 }
 
 async function update(id, nom_ue, credit_ue) {
-  return db.query("UPDATE ue SET nom_ue = ?, credit_ue = ? WHERE id_ue = ?", [nom_ue, credit_ue, id]);
+  return Ue.update({ nom_ue, credit_ue }, { where: { id_ue: id } });
 }
 
 async function remove(id) {
-  return db.query("DELETE FROM ue WHERE id_ue = ?", [id]);
+  return Ue.destroy({ where: { id_ue: id } });
 }
 
 module.exports = { getAll, getById, create, update, remove };

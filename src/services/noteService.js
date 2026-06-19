@@ -1,47 +1,66 @@
-const db = require("../config/database");
+const { Op, fn, col, where } = require("sequelize");
+const { Note, Etudiant, Niveau, Ec } = require("../models");
+const sequelize = require("../config/sequelize");
 
 async function getAll() {
-  const query =
-    "SELECT id_note,valeur,id_annee,matricule AS id_etudiant,titre_niveau AS id_niveau,nom_ec AS id_ec FROM note,etudiant,niveau,ec WHERE note.id_etudiant = etudiant.id_etudiant AND note.id_niveau = niveau.id_niveau AND note.id_ec = ec.id_ec";
-  return db.query(query);
+  return Note.findAll({
+    include: [
+      { model: Etudiant, attributes: [] },
+      { model: Niveau, attributes: [] },
+      { model: Ec, attributes: [] },
+    ],
+    attributes: [
+      "id_note", "valeur", "id_annee", "id_etudiant", "id_niveau", "id_ec",
+      [col("etudiant.matricule"), "matricule"],
+      [col("etudiant.nom"), "etudiant_nom"],
+      [col("niveau.titre_niveau"), "titre_niveau"],
+      [col("ec.nom_ec"), "nom_ec"],
+    ],
+    raw: true,
+  });
 }
 
 async function getById(id) {
-  return db.query("SELECT * FROM note WHERE id_note = ?", [id]);
+  return Note.findByPk(id);
 }
 
 async function create(data) {
   const { valeur, id_etudiant, id_niveau, id_ec, id_annee } = data;
-  return db.query(
-    "INSERT INTO note(valeur, id_etudiant, id_niveau, id_ec, id_annee) VALUES (?, ?, ?, ?, ?)",
-    [valeur, id_etudiant, id_niveau, id_ec, id_annee],
-  );
+  return Note.create({ valeur, id_etudiant, id_niveau, id_ec, id_annee });
 }
 
 async function update(id, valeur) {
-  return db.query("UPDATE note SET valeur = ? WHERE id_note = ?", [valeur, id]);
+  return Note.update({ valeur }, { where: { id_note: id } });
 }
 
 async function remove(id) {
-  return db.query("DELETE FROM note WHERE id_note = ?", [id]);
+  return Note.destroy({ where: { id_note: id } });
 }
 
 async function getByEtudiant(id_etudiant) {
-  return db.query("SELECT * FROM note WHERE id_etudiant = ?", [id_etudiant]);
+  return Note.findAll({ where: { id_etudiant } });
 }
 
 async function getByEtudiantAndNiveau(id_etudiant, id_niveau) {
-  return db.query("SELECT * FROM note WHERE id_etudiant = ? AND id_niveau = ?", [id_etudiant, id_niveau]);
+  return Note.findAll({ where: { id_etudiant, id_niveau } });
 }
 
 async function getByEtudiantAndYear(id_etudiant, annee) {
-  return db.query("SELECT * FROM note WHERE id_etudiant = ? AND YEAR(date) = ?", [id_etudiant, annee]);
+  return Note.findAll({
+    where: {
+      id_etudiant,
+      [Op.and]: where(fn("YEAR", col("date")), annee),
+    },
+  });
 }
 
 async function getByNiveauAndYear(id_ec, id_niveau, id_annee) {
-  const query =
-    "SELECT valeur,matricule FROM note,etudiant WHERE id_ec = ? AND id_niveau = ? AND id_annee = ? AND note.id_etudiant = etudiant.id_etudiant";
-  return db.query(query, [id_ec, id_niveau, id_annee]);
+  return Note.findAll({
+    where: { id_ec, id_niveau, id_annee },
+    include: [{ model: Etudiant, attributes: [] }],
+    attributes: ["valeur", [col("etudiant.matricule"), "matricule"]],
+    raw: true,
+  });
 }
 
 module.exports = {

@@ -1,7 +1,7 @@
-const db = require("../config/database");
+const { Annee } = require("../models");
 
 async function getAll() {
-  return db.query("SELECT * FROM annee");
+  return Annee.findAll();
 }
 
 module.exports = { getAll };
