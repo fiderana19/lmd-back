@@ -1,0 +1,377 @@
+Section 1: Setting up the Project
+Step 1: Create a new directory for your project and navigate into it:
+
+mkdir express-sequelize-swagger-api
+cd express-sequelize-swagger-api
+Step 2: Initialize a new Node.js project and install the necessary dependencies:
+
+npm init -y
+npm install express mysql2 sequelize swagger-ui-express dotenv
+Step 3: Create the following folder structure in the project root folder:
+
+- src
+  - models
+    - user.js
+  - routes
+    - users.js
+  - index.js
+  - db.js
+- swagger
+  - swagger.json
+- .env
+Section 2: Set up the database connection and sync the models
+Step 1:Install the MySQL database and setup
+
+Create a database and update the database credentials in the .env file
+#.env 
+DB_HOST=<database_host>
+DB_USER=<database_user>
+DB_PASSWORD=<database_password>
+DB_NAME=<database_name>
+Step 2: Configure the MySQL connection in the src/db.js file:
+
+// src/db.js
+
+const Sequelize = require('sequelize');
+
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  dialect: 'mysql',
+});
+
+sequelize.sync({ force: false })
+.then(() => {
+    console.log('Database synchronized');
+})
+.catch((error) => {
+    console.error('Failed to synchronize database:', error);
+});
+
+
+module.exports = sequelize;
+Step 3: Create a User model in the src/models/user.js file:
+
+// src/models/user.js
+const Sequelize = require('sequelize');
+const sequelize = require('../db');
+
+const User = sequelize.define('user', {
+  firstName: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  lastName: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
+    },
+  },
+  age: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    validate: {
+      min: 0,
+    },
+  },
+});
+
+module.exports = User;
+Section 3: Implement CRUD Operations
+step 1:Create CRUD routes for users in the src/routes/users.js file:
+
+// src/routes/user.js
+
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+
+// Create a new user
+router.post('/', async (req, res) => {
+  try {
+    const user = await User.create(req.body);
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create user.' });
+  }
+});
+
+// Get all users
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.findAll();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch users.' });
+  }
+});
+
+// Get user by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found.' });
+    } else {
+      res.json(user);
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch user.' });
+  }
+});
+
+// Update user by ID
+router.put('/:id', async (req, res) => {
+  try {
+    const [updatedRowsCount] = await User.update(req.body, {
+        where: { id: req.params.id }
+    });      
+    if (updatedRowsCount === 0) {
+      res.status(404).json({ message: 'User not found.' });
+    } else {
+      const user = await User.findByPk(req.params.id);
+      res.json(user);
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update user.' });
+  }
+});
+
+// Delete user by ID
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedRowsCount = await User.destroy({ where: { id: req.params.id } });
+    if (deletedRowsCount === 0) {
+      res.status(404).json({ message: 'User not found.' });
+    } else {
+      res.json({ message: 'User deleted successfully.' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete user.' });
+  }
+});
+
+module.exports = router;
+Step 2: Mount the users routes in the src/index.js file:
+
+// src/index.js
+
+require('dotenv').config();
+
+const express = require('express');
+
+const userRoutes = require('./routes/users');
+
+const app = express();
+
+app.use(express.json());
+
+app.use('/users', userRoutes);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
+Section 4: Add Swagger Documentation
+step 1: Create a Swagger documentation file in the swagger/swagger.json file:
+
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "User API",
+      "description": "API for managing users",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "paths": {
+      "/users": {
+        "get": {
+          "summary": "Get all users",
+          "responses": {
+            "200": {
+              "description": "A list of users",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create a new user",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The newly created user",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}": {
+        "get": {
+          "summary": "Get user by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The user",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Update user by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "The updated user",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete user by ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User deleted successfully"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "age": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    }
+  }
+Step 2: Import swagger/swagger.json into src/index.js file and add /api-docs` route:
+
+// src/index.js
+
+require('dotenv').config();
+
+const express = require('express');
+
+const userRoutes = require('./routes/users');
+
+// import swagger ui module and swagger json file
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('../swagger/swagger.json');
+
+
+const app = express();
+
+app.use(express.json());
+
+// add route for swagger document API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use('/users', userRoutes);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
